@@ -1,0 +1,82 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <Windows.h>
+ 
+void down(int vk)
+{
+    keybd_event(vk,0,0,0);
+}
+void up(int vk)
+{
+    keybd_event(vk,0,KEYEVENTF_KEYUP,0);
+}
+void press(int vk)
+{
+    down(vk);
+    Sleep(50);
+    up(vk);
+}
+ 
+void caps(char cha){
+	
+	press(VK_CAPITAL);//按下并放开大写字母锁定
+	Sleep(50);
+	press(cha);//按下并放开str[i]
+	Sleep(50);
+	press(VK_CAPITAL);//按下并放开大写字母锁定
+    printf("输入：%c",cha);
+} 
+ 
+int main()
+{
+    char str[1000];
+    int i,user;
+ 
+    printf("请输入一个字符串：");
+    fflush(stdin);
+    gets(str);
+ 
+    printf("您输入的字符串是：%s\n按下ctrl+alt+v触发模拟输入功能\n注意：将输入法切换为英文并关闭大写字母锁定\n在输出时不支持的字符会使用：“- ”替换\n", str);
+ 
+    while (true)
+    {
+    	if (GetAsyncKeyState(VK_CONTROL) & 0x8000 && GetAsyncKeyState(VK_MENU) & 0x8000 && GetAsyncKeyState('V') & 0x8000)
+        {
+        	up(VK_CONTROL);
+        	up(VK_MENU);
+        	up('V');
+        	printf("程序开始执行");
+         	for (i = 0; str[i] != '\0'; i++)
+    		{
+    			if(str[i]>=97&&str[i]<=122) {//小写 
+    				str[i]-=32;
+    				press(str[i]);//按下并放开str[i]
+				}else if((str[i]>=65&&str[i]<=90)||(str[i]>=48&&str[i]<=57)){//大写 
+					caps(str[i]);
+					Sleep(50);
+    				
+					}else {
+						switch(str[i])
+						{
+    						case '.':press(VK_DECIMAL); Sleep(50); break;
+    						case ',':press(VK_OEM_COMMA); Sleep(50); break;
+							case ' ':press(VK_SPACE); Sleep(50); break;
+    						/*
+							case '.':press(VK_DECIMAL); Sleep(50); break;//自定义子符 
+							case '.':press(VK_DECIMAL); Sleep(50); break;//自定义子符 
+							case '.':press(VK_DECIMAL); Sleep(50); break;//自定义子符 
+							case '.':press(VK_DECIMAL); Sleep(50); break;//自定义子符 
+    						case '.':press(VK_DECIMAL); Sleep(50); break;//自定义子符 
+							*/
+    						default:press(VK_OEM_MINUS); Sleep(50);
+						}
+					}
+				}
+        	printf("\n程序已执行\n输入新字符请键入1，退出请键入任意键：");   
+    		scanf("%d",&user);
+			if(user==1) main();else break; // 跳出循环
+    		}
+        }
+    
+    return 0;
+}
